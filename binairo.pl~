@@ -44,7 +44,32 @@ completo(I, 0, M):- tablero(I, 0, _), I1 is I-1, completo(I1, M, M).
 completo(I, J, M):- tablero(I, J, _), J1 is J-1, completo(I, J1, M).
 
 % Si se ha aplicado fuerza bruta se debe verificar la validez del tablero
-verifica_validez(_).
+verifica_validez(N):- arma_filas(0, N, F), distintas(F), arma_columnas(0, N, C), distintas(C).
+
+arma_filas(I, N, []):- I > N.
+arma_filas(I, N, [F|Filas]):- arma_fila(I, 0, N, F), I1 is I+1, arma_filas(I1, N, Filas).
+
+arma_fila(_, J, N, []):- J > N.
+arma_fila(I, J, N, [C|Colores]) :- tablero(I, J, C), J1 is J+1, arma_fila(I, J1, N, Colores).
+
+arma_columnas(J, M, []):- J > M.
+arma_columnas(J, M, [C|Columnas]):- arma_columna(0, J, M, C), J1 is J+1, arma_columnas(J1, M, Columnas).
+
+arma_columna(I, _, M, []):- I > M.
+arma_columna(I, J, M, [C|Colores]) :- tablero(I, J, C), I1 is I+1, arma_columna(I1, J, M, Colores).
+
+distintas([_]).
+distintas(LL):- select(L, LL, L1), distinto_de_todos(L, L1), distintas(L1).
+
+distinto_de_todos(_, []).
+distinto_de_todos(L, [Cab|Cola]):- not(distinto(L, Cab)), distinto_de_todos(L, Cola).
+
+distinto([Cab], [Cab]).
+distinto([Cab|Cola1], [Cab|Cola2]):- distinto(Cola1, Cola2).
+
+
+
+
 
 % Ciclo por el que se itera cada vez que se ha aplicado una regla y ha
 % desembocado en al menos un cambio en el tablero
@@ -73,8 +98,8 @@ aplicar_reglas(N, M, FB):- regla3_columna(0, M, Cambio), Cambio == 1, ciclo(N, M
 
 reglas1y2(I, J, N, M, Cambio):- siguiente_celda(N, M, I, J, I1, J1),
                                 elige_caso(I1, J1, N, M, Cambio),
-                                reglas1y2(I1, J1, N, M, Cambio).
-reglas1y2(_, _, _, _, _):- !. % Se llega a esta clausula cuando siguiente_celda da falso
+                                reglas1y2(I1, J1, N, M, Cambio), !.
+reglas1y2(_, _, _, _, _). % Se llega a esta clausula cuando siguiente_celda da falso
 
 elige_caso(I, J, N, M, Cambio):- (tablero(I, J, _), celda_color(I, J, N, M, Cambio); celda_vacia(I, J, N, M, Cambio)).
 elige_caso(_, _, _, _, _).
