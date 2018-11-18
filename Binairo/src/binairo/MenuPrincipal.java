@@ -5,6 +5,14 @@
  */
 package binairo;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.util.LinkedList;
+import java.util.Map;
+import org.jpl7.Atom;
+import org.jpl7.Query;
+import org.jpl7.Term;
+
 /**
  *
  * @author manuc
@@ -16,6 +24,50 @@ public class MenuPrincipal extends javax.swing.JFrame {
      */
     public MenuPrincipal() {
         initComponents();
+        this.setTitle("Binairo");
+        this.setResizable(false);
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
+
+        String path = "C:\\Users\\manuc\\Dropbox\\4° Año, Segundo Cuatrimestre 2018\\Inteligencia Artificial\\Trabajo Final\\Binairo\\binairo\\binairo.pl";
+        Query q1 = new Query("consult", new Term[]{new Atom(path)});
+        if (q1.hasSolution()) {
+            System.out.println("Programa listo para consultar...");
+        } else {
+            System.out.println("Archivo no encontrado.");
+        }
+    }
+
+    private void lanzarNivel(String nivel) {
+        // Variable L = new Variable("L");
+        // String Nivel = "1";
+        // Query q2 = new Query("resuelve", new Term[]{new Atom(Nivel), L});
+        Query q = new Query("resuelve(" + nivel + ", L)");
+        Map<String, Term>[] solutions = q.allSolutions();
+        String[] array = this.getArrayParseado(solutions);
+        int N = Integer.parseInt(array[0]);
+        int M = Integer.parseInt(array[1]);
+        int CI = Integer.parseInt(array[2]); // CI = Celdas Iniciales
+        LinkedList<Celda> celdas = this.getCeldas(array);
+        Nivel n = new Nivel(this, true, N, M, CI, celdas);
+    }
+
+    private String[] getArrayParseado(Map<String, Term>[] solutions) {
+        String solucion = solutions[0].get("L").toString();
+        solucion = solucion.replace("'", "").replace("[", "").replace("]", "").replace(",", "");
+        solucion = solucion.replace("|", "").replace("(", "").replace(")", "");
+        return solucion.split(" ");
+    }
+
+    private LinkedList<Celda> getCeldas(String[] array) {
+        LinkedList<Celda> celdas = new LinkedList<Celda>();
+        for (int k = 3; k < array.length; k = k + 3) {
+            int i = Integer.parseInt(array[k]);
+            int j = Integer.parseInt(array[k + 1]);
+            String c = array[k + 2];
+            celdas.add(new Celda(i, j, c));
+        }
+        return celdas;
     }
 
     /**
@@ -28,82 +80,128 @@ public class MenuPrincipal extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
+        jButtonNivel6x6 = new javax.swing.JButton();
+        jButtonNivel14x14 = new javax.swing.JButton();
+        jButtonNivel8x8 = new javax.swing.JButton();
+        jButtonNivel10x10 = new javax.swing.JButton();
+        jButtonNivel20x20 = new javax.swing.JButton();
+        jButtonNivelGod = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel1.setFont(new java.awt.Font("Dialog", 1, 36)); // NOI18N
-        jLabel1.setText("Binairo");
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/binairo/images/binairo-logo.png"))); // NOI18N
 
-        jButton1.setText("Nivel 6x6 Hard");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        jButtonNivel6x6.setText("Nivel 6x6 Hard");
+        jButtonNivel6x6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                jButtonNivel6x6ActionPerformed(evt);
             }
         });
 
-        jButton2.setText("Nivel 14x14 Hard");
+        jButtonNivel14x14.setText("Nivel 14x14 Hard");
+        jButtonNivel14x14.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonNivel14x14ActionPerformed(evt);
+            }
+        });
 
-        jButton3.setText("Nivel 8x8 Hard");
+        jButtonNivel8x8.setText("Nivel 8x8 Hard");
+        jButtonNivel8x8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonNivel8x8ActionPerformed(evt);
+            }
+        });
 
-        jButton4.setText("Nivel 10x10 Hard");
+        jButtonNivel10x10.setText("Nivel 10x10 Hard");
+        jButtonNivel10x10.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonNivel10x10ActionPerformed(evt);
+            }
+        });
 
-        jButton5.setText("Nivel 20x20 Hard");
+        jButtonNivel20x20.setText("Nivel 20x20 Hard");
+        jButtonNivel20x20.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonNivel20x20ActionPerformed(evt);
+            }
+        });
 
-        jButton6.setText("Nivel God");
+        jButtonNivelGod.setText("Nivel God");
+        jButtonNivelGod.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonNivelGodActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(60, 60, 60)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(52, 52, 52)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(54, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel1)
-                .addGap(145, 145, 145))
+                .addContainerGap(81, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jButtonNivel8x8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButtonNivel10x10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButtonNivel6x6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(58, 58, 58)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jButtonNivel20x20, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButtonNivel14x14, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButtonNivelGod, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(88, 88, 88))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(114, 114, 114))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(38, 38, 38)
-                .addComponent(jLabel1)
-                .addGap(31, 31, 31)
+                .addGap(12, 12, 12)
+                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
+                    .addComponent(jButtonNivel6x6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButtonNivel14x14, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton3)
-                    .addComponent(jButton5))
+                    .addComponent(jButtonNivel8x8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButtonNivel20x20, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton4)
-                    .addComponent(jButton6))
-                .addContainerGap(52, Short.MAX_VALUE))
+                    .addComponent(jButtonNivel10x10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButtonNivelGod, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(31, 31, 31))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void jButtonNivel6x6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNivel6x6ActionPerformed
+        this.lanzarNivel("1");
+    }//GEN-LAST:event_jButtonNivel6x6ActionPerformed
+
+    private void jButtonNivel8x8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNivel8x8ActionPerformed
+        this.lanzarNivel("2");
+    }//GEN-LAST:event_jButtonNivel8x8ActionPerformed
+
+    private void jButtonNivel10x10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNivel10x10ActionPerformed
+        this.lanzarNivel("3");
+    }//GEN-LAST:event_jButtonNivel10x10ActionPerformed
+
+    private void jButtonNivel14x14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNivel14x14ActionPerformed
+        this.lanzarNivel("4");
+    }//GEN-LAST:event_jButtonNivel14x14ActionPerformed
+
+    private void jButtonNivel20x20ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNivel20x20ActionPerformed
+        this.lanzarNivel("6");
+    }//GEN-LAST:event_jButtonNivel20x20ActionPerformed
+
+    private void jButtonNivelGodActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNivelGodActionPerformed
+        this.lanzarNivel("7");
+    }//GEN-LAST:event_jButtonNivelGodActionPerformed
 
     /**
      * @param args the command line arguments
@@ -141,12 +239,12 @@ public class MenuPrincipal extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButtonNivel10x10;
+    private javax.swing.JButton jButtonNivel14x14;
+    private javax.swing.JButton jButtonNivel20x20;
+    private javax.swing.JButton jButtonNivel6x6;
+    private javax.swing.JButton jButtonNivel8x8;
+    private javax.swing.JButton jButtonNivelGod;
     private javax.swing.JLabel jLabel1;
     // End of variables declaration//GEN-END:variables
 }
