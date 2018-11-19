@@ -5,10 +5,15 @@
  */
 package binairo;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Toolkit;
-import java.awt.geom.Line2D;
+import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.Executors;
@@ -16,6 +21,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
@@ -25,79 +31,130 @@ import javax.swing.JButton;
  */
 public class Nivel extends javax.swing.JDialog {
 
-    private final int CELDA_SIZE = 48;
-    private final int N;
-    private final int M;
+    public final int CELDA_SIZE = 25;
+    public final int N;
+    public final int M;
     private final int CI;
     private LinkedList<Celda> celdasPorVer;
     private LinkedList<Celda> celdasVistas;
-    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+    private Image celdaBlanca;
+    private Image celdaBlancaLast;
+    private Image celdaNegra;
+    private Image celdaNegraLast;
+    private Image celdaTablero;
+    private ScheduledExecutorService executorService;
+    public final int ANCHO;
+    public final int ALTO;
+    public final int INITIAL_X;
+    public final int INITIAL_Y;
 
     public Nivel(java.awt.Frame parent, boolean modal, int N, int M, int CI, LinkedList<Celda> celdas) {
         super(parent, modal);
-        this.setResizable(false);
         this.N = N + 1;
         this.M = M + 1;
         this.CI = CI;
         this.setTitle("Binairo: " + this.N + "x" + this.M + " Hard");
         initComponents();
-        initComponents2();
-        this.celdasPorVer = celdas;
-        this.celdasVistas = new LinkedList<Celda>();
-
-        // this.setMinimumSize(new Dimension(50, 50));
+        try {
+            this.celdaBlanca = ImageIO.read(new File("src\\binairo\\images\\celda_blanca.png"));
+            this.celdaBlancaLast = ImageIO.read(new File("src\\binairo\\images\\celda_blanca_last.png"));
+            this.celdaNegra = ImageIO.read(new File("src\\binairo\\images\\celda_negra.png"));
+            this.celdaNegraLast = ImageIO.read(new File("src\\binairo\\images\\celda_negra_last.png"));
+            this.celdaTablero = ImageIO.read(new File("src\\binairo\\images\\celda_tablero.png"));
+        } catch (IOException ex) {
+            Logger.getLogger(Nivel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        this.jPanelBoard.setBackground(Color.WHITE);
+        this.jPanelControl.setBackground(Color.DARK_GRAY);
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
-        setVisible(true);
+        inicializarBoton(this.jButtonAvanzar, "src\\binairo\\images\\next.png");
+        inicializarBoton(this.jButtonMenuPrincipal, "src\\binairo\\images\\menu.png");
+        inicializarBoton(this.jButtonPlay, "src\\binairo\\images\\play.png");
+        inicializarBoton(this.jButtonRetroceder, "src\\binairo\\images\\previous.png");
+        inicializarBoton(this.jButtonStop, "src\\binairo\\images\\stop.png");
+        this.jButtonAvanzar.setAlignmentX(Component.CENTER_ALIGNMENT);
+        this.jButtonMenuPrincipal.setAlignmentX(Component.CENTER_ALIGNMENT);
+        this.jButtonPlay.setAlignmentX(Component.CENTER_ALIGNMENT);
+        this.jButtonRetroceder.setAlignmentX(Component.CENTER_ALIGNMENT);
+        this.jButtonStop.setAlignmentX(Component.CENTER_ALIGNMENT);
+        this.pack();
+        this.ANCHO = this.jPanelBoard.getWidth();
+        this.ALTO = this.jPanelBoard.getHeight();
+        this.INITIAL_X = this.ANCHO / 2 - (this.M / 2 * CELDA_SIZE) + CELDA_SIZE / 2;
+        this.INITIAL_Y = this.ALTO / 2 - (this.N / 2 * CELDA_SIZE) + CELDA_SIZE / 2;
+        this.celdasPorVer = celdas;
+        this.celdasVistas = new LinkedList<Celda>();
+        for (int i = 0; i < this.CI; i++) {
+            this.celdasVistas.addLast(this.celdasPorVer.removeFirst());
+        }
+        repaint();
+        this.setVisible(true);
     }
 
+    @Override
     public void paint(Graphics g) {
         super.paint(g);
-        // this.jPanelBoard.setBackground(Color.WHITE);
-        int positionY = CELDA_SIZE;
-        int positionX = CELDA_SIZE;
-        int i;
-        for (i = 1; i < this.N; i++) {
-            g.drawLine(0, positionY, this.jPanelBoard.getWidth(), positionY);
-            positionY += CELDA_SIZE;
+        int x;
+        int y;
+        Celda c1, c2;
+        y = this.INITIAL_Y;
+        for (int i = 0; i < this.N; i++) {
+            x = this.INITIAL_X;
+            for (int j = 0; j < this.M; j++) {
+                g.drawImage(this.celdaTablero, x, y, null);
+                x += CELDA_SIZE;
+            }
+            y += CELDA_SIZE;
         }
-        for (i = 1; i < this.M; i++) {
-            g.drawLine(positionX, 0, positionX, CELDA_SIZE * N);
-            positionX += CELDA_SIZE;
+        c1 = this.celdasVistas.removeLast();
+        Iterator<Celda> it = this.celdasVistas.iterator();
+        x = this.INITIAL_X;
+        y = this.INITIAL_Y;
+        while (it.hasNext()) {
+            c2 = it.next();
+            x = this.INITIAL_X + CELDA_SIZE * c2.getJ();
+            y = this.INITIAL_Y + CELDA_SIZE * c2.getI();
+            if (c2.getC().equalsIgnoreCase("o")) {
+                g.drawImage(this.celdaBlanca, x + 1, y + 1, null);
+            } else {
+                g.drawImage(this.celdaNegra, x + 1, y + 1, null);
+            }
         }
+        x = this.INITIAL_X + CELDA_SIZE * c1.getJ();
+        y = this.INITIAL_Y + CELDA_SIZE * c1.getI();
+        if (c1.getC().equalsIgnoreCase("o")) {
+            g.drawImage(this.celdaBlancaLast, x + 1, y + 1, null);
+        } else {
+            g.drawImage(this.celdaNegraLast, x + 1, y + 1, null);
+        }
+        this.celdasVistas.add(c1);
     }
 
     private void avanzar() {
         // Quitamos la Celda de la cabeza de la lista de una y la ponemos en la cola de la otra
-        this.celdasVistas.addLast(this.celdasPorVer.removeFirst());
-        Iterator it = this.celdasVistas.iterator();
-        while (it.hasNext()) {
-            System.out.println(it.next().toString());
+        if (this.celdasPorVer.isEmpty()) {
+            this.jButtonAvanzar.setEnabled(false);
+        } else {
+            this.celdasVistas.addLast(this.celdasPorVer.removeFirst());
+            this.jButtonRetroceder.setEnabled(true);
+            this.repaint();
         }
-        System.out.println();
-        this.repaint();
     }
 
     private void retroceder() {
         // Quitamos el último elemento de la lista de celdas vistas y lo agregamos en la cabeza de la otra
-        this.celdasPorVer.addFirst(this.celdasVistas.removeLast());
-        this.repaint();
+        if (this.celdasVistas.size() > this.CI) {
+            this.celdasPorVer.addFirst(this.celdasVistas.removeLast());
+            this.jButtonAvanzar.setEnabled(true);
+            this.repaint();
+        } else {
+            this.jButtonRetroceder.setEnabled(false);
+        }
     }
 
-    private void initComponents2() {
-        inicializarBoton(this.jButtonAvanzar, "src\\binairo\\images\\next.png", 25);
-        inicializarBoton(this.jButtonMenuPrincipal, "src\\binairo\\images\\menu.png", 25);
-        inicializarBoton(this.jButtonPlay, "src\\binairo\\images\\play.png", 25);
-        inicializarBoton(this.jButtonRetroceder, "src\\binairo\\images\\previous.png", 25);
-        inicializarBoton(this.jButtonStop, "src\\binairo\\images\\stop.png", 25);
-        this.jPanelBoard.setSize(CELDA_SIZE * this.M, CELDA_SIZE * this.N);
-        this.pack();
-        repaint();
-    }
-
-    private void inicializarBoton(JButton button, String path, int dimension) {
+    private void inicializarBoton(JButton button, String path) {
         button.setIcon(new ImageIcon(((new ImageIcon(path).getImage().getScaledInstance(25, 25, java.awt.Image.SCALE_SMOOTH)))));
-
     }
 
     /**
@@ -119,26 +176,46 @@ public class Nivel extends javax.swing.JDialog {
         jButtonMenuPrincipal = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setMinimumSize(new java.awt.Dimension(800, 600));
+        setModal(true);
+        setPreferredSize(new java.awt.Dimension(800, 650));
+        setResizable(false);
+
+        jPanelBoard.setMinimumSize(new java.awt.Dimension(200, 200));
+        jPanelBoard.setName(""); // NOI18N
 
         javax.swing.GroupLayout jPanelBoardLayout = new javax.swing.GroupLayout(jPanelBoard);
         jPanelBoard.setLayout(jPanelBoardLayout);
         jPanelBoardLayout.setHorizontalGroup(
             jPanelBoardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGap(0, 441, Short.MAX_VALUE)
         );
         jPanelBoardLayout.setVerticalGroup(
             jPanelBoardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 309, Short.MAX_VALUE)
+            .addGap(0, 231, Short.MAX_VALUE)
         );
 
+        getContentPane().add(jPanelBoard, java.awt.BorderLayout.CENTER);
+
+        jPanelControl.setMaximumSize(new java.awt.Dimension(174, 28));
         jPanelControl.setLayout(new java.awt.GridBagLayout());
 
         jButtonRetroceder.setFocusable(false);
         jButtonRetroceder.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButtonRetroceder.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButtonRetroceder.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButtonRetrocederMouseClicked(evt);
+            }
+        });
         jButtonRetroceder.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonRetrocederActionPerformed(evt);
+            }
+        });
+        jButtonRetroceder.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jButtonRetrocederKeyPressed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -151,9 +228,19 @@ public class Nivel extends javax.swing.JDialog {
         jButtonAvanzar.setFocusable(false);
         jButtonAvanzar.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButtonAvanzar.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButtonAvanzar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButtonAvanzarMouseClicked(evt);
+            }
+        });
         jButtonAvanzar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonAvanzarActionPerformed(evt);
+            }
+        });
+        jButtonAvanzar.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jButtonAvanzarKeyPressed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -201,57 +288,30 @@ public class Nivel extends javax.swing.JDialog {
                 jButtonMenuPrincipalActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(6, 6, 6, 93);
-        jPanelControl.add(jButtonMenuPrincipal, gridBagConstraints);
+        jPanelControl.add(jButtonMenuPrincipal, new java.awt.GridBagConstraints());
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanelBoard, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanelControl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanelBoard, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanelControl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+        getContentPane().add(jPanelControl, java.awt.BorderLayout.SOUTH);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonRetrocederActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRetrocederActionPerformed
-        this.retroceder();
+
     }//GEN-LAST:event_jButtonRetrocederActionPerformed
 
     private void jButtonAvanzarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAvanzarActionPerformed
-        this.avanzar();
+
     }//GEN-LAST:event_jButtonAvanzarActionPerformed
 
     private void jButtonMenuPrincipalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonMenuPrincipalActionPerformed
-        try {
-            this.executorService.awaitTermination(2, TimeUnit.SECONDS);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Nivel.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        this.executorService.shutdownNow();
         this.dispose();
     }//GEN-LAST:event_jButtonMenuPrincipalActionPerformed
 
     private void jButtonPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPlayActionPerformed
         this.jButtonAvanzar.setEnabled(false);
         this.jButtonRetroceder.setEnabled(false);
+        this.executorService = Executors.newSingleThreadScheduledExecutor();
         this.executorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
@@ -261,14 +321,30 @@ public class Nivel extends javax.swing.JDialog {
     }//GEN-LAST:event_jButtonPlayActionPerformed
 
     private void jButtonStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStopActionPerformed
-        try {
-            this.executorService.awaitTermination(2, TimeUnit.SECONDS);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Nivel.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        this.executorService.shutdownNow();
         this.jButtonAvanzar.setEnabled(true);
         this.jButtonRetroceder.setEnabled(true);
     }//GEN-LAST:event_jButtonStopActionPerformed
+
+    private void jButtonAvanzarKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jButtonAvanzarKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_RIGHT) {
+            this.avanzar();
+        }
+    }//GEN-LAST:event_jButtonAvanzarKeyPressed
+
+    private void jButtonRetrocederKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jButtonRetrocederKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_LEFT) {
+            this.retroceder();
+        }
+    }//GEN-LAST:event_jButtonRetrocederKeyPressed
+
+    private void jButtonRetrocederMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonRetrocederMouseClicked
+        this.retroceder();
+    }//GEN-LAST:event_jButtonRetrocederMouseClicked
+
+    private void jButtonAvanzarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonAvanzarMouseClicked
+        this.avanzar();
+    }//GEN-LAST:event_jButtonAvanzarMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonAvanzar;
