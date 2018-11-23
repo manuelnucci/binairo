@@ -4,9 +4,6 @@
 %#############   GUI temporal   ################
 %###############################################
 
-siguiente(X, Y):- X < 5, Y is X+1.
-siguiente(X, Y):- X1 is X+1, siguiente(X1, Y).
-
 depurar(_,_,_).
 depurar2(Texto, N, M):- write(Texto), nl, imprimir(0, N, M), read(X), X \== q.
 
@@ -27,13 +24,12 @@ imprimir_fila(I, J, M):- (tablero(I, J, C), write(' '), write(C), write(' '); wr
 
 % Predicado que es llamado desde la GUI
 resuelve(Nivel, [N, M, CI |L]):- retractall(tablero(I, J, C)), % Eliminamos de la memoria cualquier contenido dinamico que
-                                                   % hubiese quedado
-                     game(Nivel, N, M, CI), % CI = Celdas Iniciales
-                     % depurar2('Tablero inicial', N, M),
-                     ciclo(N, M, 0),
-                     % depurar2('Tablero final', N, M),
-                     findall((I,J,C), tablero(I,J,C), L), !.
-                     % lista_solucion(0, N, L).
+                                                               % hubiese quedado
+                                 game(Nivel, N, M, CI), % CI = Celdas Iniciales
+                                 % depurar2('Tablero inicial', N, M),
+                                 ciclo(N, M, 0),
+                                 % depurar2('Tablero final', N, M),
+                                 findall((I,J,C), tablero(I,J,C), L), !.
 
 % Procedimiento que genera la lista con todas las celdas de la matriz
 % lista_solucion(I, N, [I,J,C|L]):- I < N, tablero(I,J,C),
@@ -174,7 +170,7 @@ celda_vacia(I, J, N, M, Cambio):- I =:= N-1, miro_derecha_vacia(I, J, N, M, Camb
 celda_vacia(I, J, N, M, Cambio):- miro_derecha_vacia(I, J, N, M, Cambio), miro_abajo_vacia(I, J, N, M, Cambio).
 
 miro_abajo_vacia(I, J, N, M, Cambio):- not(tablero(I, J, _)), % Debo asegurarme que en el caso que sea una celda no especial
-                                                              % siga estando vacia luego de haber pasado por miro_abajo_vacia
+                                                              % siga estando vacia luego de haber pasado por miro_derecha_vacia
                                        I1 is I+1,
                                        tablero(I1, J, Color),
                                        I2 is I1+1,
@@ -533,7 +529,7 @@ adcuc(J, M, [X], Color, Cambio, _):- 5 =:= M-X, % Ultimo elemento con 5 libres a
 %#################   Regla 5   ##################
 %################################################
 
-regla5_fila(N, Cambio):- filas_comparables(0, N, FCL, FL), % FCL = Filas Casi Llenas, FL = Filas Llenas (N-2)
+regla5_fila(N, Cambio):- filas_comparables(0, N, FCL, FL), % FCL = Filas Casi Llenas (N-2), FL = Filas Llenas
                          comparacion(FCL, FL, Cambio), (Cambio == 1, depurar('Regla 5 Fila', N, N); true), !.
 
 filas_comparables(I, N, [], []):- I > N. % Caso base
@@ -566,7 +562,7 @@ completar_con_opuesto([t(I, J, v)|Cola1], [t(_, _, Color)|Cola2]):- ((Color == x
                                                                     completar_con_opuesto(Cola1, Cola2).
 completar_con_opuesto([_|Cola1], [_|Cola2]):- completar_con_opuesto(Cola1, Cola2).
 
-regla5_columna(M, Cambio):- columnas_comparables(0, M, CCL, CL), % CCL = Columnas Casi Llenas, CL = Columnas Llenas (N-2)
+regla5_columna(M, Cambio):- columnas_comparables(0, M, CCL, CL), % CCL = Columnas Casi Llenas (N-2), CL = Columnas Llenas
                             comparacion(CCL, CL, Cambio), (Cambio == 1, depurar('Regla 5 Columna', M, M); true), !.
 
 columnas_comparables(J, M, [], []):- J > M. % Caso base

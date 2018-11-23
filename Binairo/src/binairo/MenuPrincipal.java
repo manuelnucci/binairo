@@ -54,6 +54,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
 
     private String[] getArrayParseado(Map<String, Term>[] solutions) {
         String solucion = solutions[0].get("L").toString();
+        // System.out.println(solucion);
         solucion = solucion.replace("'", "").replace("[", "").replace("]", "").replace(",", "");
         solucion = solucion.replace("|", "").replace("(", "").replace(")", "");
         return solucion.split(" ");
