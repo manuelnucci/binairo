@@ -562,7 +562,7 @@ completar_con_opuesto([t(I, J, v)|Cola1], [t(_, _, Color)|Cola2]):- ((Color == x
                                                                     completar_con_opuesto(Cola1, Cola2).
 completar_con_opuesto([_|Cola1], [_|Cola2]):- completar_con_opuesto(Cola1, Cola2).
 
-regla5_columna(M, Cambio):- columnas_comparables(0, M, CCL, CL), % CCL = Columnas Casi Llenas, CL = Columnas Llenas (N-2)
+regla5_columna(M, Cambio):- columnas_comparables(0, M, CCL, CL), % CCL = Columnas Casi Llenas (N-2), CL = Columnas Llenas
                             comparacion(CCL, CL, Cambio), (Cambio == 1, depurar('Regla 5 Columna', M, M); true), !.
 
 columnas_comparables(J, M, [], []):- J > M. % Caso base

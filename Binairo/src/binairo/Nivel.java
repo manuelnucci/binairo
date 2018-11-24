@@ -64,10 +64,9 @@ public class Nivel extends javax.swing.JDialog {
         } catch (IOException ex) {
             Logger.getLogger(Nivel.class.getName()).log(Level.SEVERE, null, ex);
         }
+        this.setPreferredSize(new Dimension(N * 25 + 200, N * 25 + 200));
         this.jPanelBoard.setBackground(Color.WHITE);
         this.jPanelControl.setBackground(Color.DARK_GRAY);
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
         inicializarBoton(this.jButtonAvanzar, "src\\binairo\\images\\next.png");
         inicializarBoton(this.jButtonMenuPrincipal, "src\\binairo\\images\\menu.png");
         inicializarBoton(this.jButtonPlay, "src\\binairo\\images\\play.png");
@@ -82,14 +81,20 @@ public class Nivel extends javax.swing.JDialog {
         this.ANCHO = this.jPanelBoard.getWidth();
         this.ALTO = this.jPanelBoard.getHeight();
         this.INITIAL_X = this.ANCHO / 2 - (this.M / 2 * CELDA_SIZE) + CELDA_SIZE / 2;
-        this.INITIAL_Y = this.ALTO / 2 - (this.N / 2 * CELDA_SIZE) + CELDA_SIZE / 2;
+        this.INITIAL_Y = this.ALTO / 2 + 10 - (this.N / 2 * CELDA_SIZE) + CELDA_SIZE / 2;
         this.celdasPorVer = celdas;
         this.celdasVistas = new LinkedList<Celda>();
         for (int i = 0; i < this.CI; i++) {
             this.celdasVistas.addLast(this.celdasPorVer.removeFirst());
         }
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
         repaint();
         this.setVisible(true);
+    }
+
+    private void inicializarBoton(JButton button, String path) {
+        button.setIcon(new ImageIcon(((new ImageIcon(path).getImage().getScaledInstance(25, 25, java.awt.Image.SCALE_SMOOTH)))));
     }
 
     @Override
@@ -153,8 +158,29 @@ public class Nivel extends javax.swing.JDialog {
         }
     }
 
-    private void inicializarBoton(JButton button, String path) {
-        button.setIcon(new ImageIcon(((new ImageIcon(path).getImage().getScaledInstance(25, 25, java.awt.Image.SCALE_SMOOTH)))));
+    private void play() {
+        // this.jButtonAvanzar.setEnabled(false);
+        // this.jButtonRetroceder.setEnabled(false);
+        this.executorService = Executors.newSingleThreadScheduledExecutor();
+        this.executorService.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                avanzar();
+            }
+        }, 0, 2, TimeUnit.SECONDS);
+    }
+
+    private void stop() {
+        this.executorService.shutdownNow();
+        // this.jButtonAvanzar.setEnabled(true);
+        // this.jButtonRetroceder.setEnabled(true);
+    }
+
+    private void menu() {
+        if (this.executorService != null) {
+            this.executorService.shutdownNow();
+        }
+        this.dispose();
     }
 
     /**
@@ -176,10 +202,15 @@ public class Nivel extends javax.swing.JDialog {
         jButtonMenuPrincipal = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setMinimumSize(new java.awt.Dimension(800, 600));
+        setMinimumSize(new java.awt.Dimension(300, 300));
         setModal(true);
-        setPreferredSize(new java.awt.Dimension(800, 650));
+        setPreferredSize(new java.awt.Dimension(800, 700));
         setResizable(false);
+        addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                formKeyReleased(evt);
+            }
+        });
 
         jPanelBoard.setMinimumSize(new java.awt.Dimension(200, 200));
         jPanelBoard.setName(""); // NOI18N
@@ -253,6 +284,11 @@ public class Nivel extends javax.swing.JDialog {
         jButtonPlay.setFocusable(false);
         jButtonPlay.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButtonPlay.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButtonPlay.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButtonPlayMouseClicked(evt);
+            }
+        });
         jButtonPlay.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonPlayActionPerformed(evt);
@@ -268,6 +304,11 @@ public class Nivel extends javax.swing.JDialog {
         jButtonStop.setFocusable(false);
         jButtonStop.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButtonStop.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButtonStop.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButtonStopMouseClicked(evt);
+            }
+        });
         jButtonStop.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonStopActionPerformed(evt);
@@ -283,6 +324,11 @@ public class Nivel extends javax.swing.JDialog {
         jButtonMenuPrincipal.setFocusable(false);
         jButtonMenuPrincipal.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButtonMenuPrincipal.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButtonMenuPrincipal.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButtonMenuPrincipalMouseClicked(evt);
+            }
+        });
         jButtonMenuPrincipal.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonMenuPrincipalActionPerformed(evt);
@@ -304,38 +350,23 @@ public class Nivel extends javax.swing.JDialog {
     }//GEN-LAST:event_jButtonAvanzarActionPerformed
 
     private void jButtonMenuPrincipalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonMenuPrincipalActionPerformed
-        this.executorService.shutdownNow();
-        this.dispose();
+
     }//GEN-LAST:event_jButtonMenuPrincipalActionPerformed
 
     private void jButtonPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPlayActionPerformed
-        this.jButtonAvanzar.setEnabled(false);
-        this.jButtonRetroceder.setEnabled(false);
-        this.executorService = Executors.newSingleThreadScheduledExecutor();
-        this.executorService.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                avanzar();
-            }
-        }, 0, 2, TimeUnit.SECONDS);
+
     }//GEN-LAST:event_jButtonPlayActionPerformed
 
     private void jButtonStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStopActionPerformed
-        this.executorService.shutdownNow();
-        this.jButtonAvanzar.setEnabled(true);
-        this.jButtonRetroceder.setEnabled(true);
+
     }//GEN-LAST:event_jButtonStopActionPerformed
 
     private void jButtonAvanzarKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jButtonAvanzarKeyPressed
-        if (evt.getKeyCode() == KeyEvent.VK_RIGHT) {
-            this.avanzar();
-        }
+
     }//GEN-LAST:event_jButtonAvanzarKeyPressed
 
     private void jButtonRetrocederKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jButtonRetrocederKeyPressed
-        if (evt.getKeyCode() == KeyEvent.VK_LEFT) {
-            this.retroceder();
-        }
+
     }//GEN-LAST:event_jButtonRetrocederKeyPressed
 
     private void jButtonRetrocederMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonRetrocederMouseClicked
@@ -345,6 +376,39 @@ public class Nivel extends javax.swing.JDialog {
     private void jButtonAvanzarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonAvanzarMouseClicked
         this.avanzar();
     }//GEN-LAST:event_jButtonAvanzarMouseClicked
+
+    private void formKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyReleased
+        switch (evt.getKeyCode()) {
+            case KeyEvent.VK_RIGHT:
+                this.avanzar();
+                break;
+            case KeyEvent.VK_LEFT:
+                this.retroceder();
+                break;
+            case KeyEvent.VK_P:
+                this.play();
+                break;
+            case KeyEvent.VK_S:
+                this.stop();
+                break;
+            case KeyEvent.VK_M:
+                this.menu();
+                break;
+            default:
+        }
+    }//GEN-LAST:event_formKeyReleased
+
+    private void jButtonPlayMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonPlayMouseClicked
+        this.play();
+    }//GEN-LAST:event_jButtonPlayMouseClicked
+
+    private void jButtonStopMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonStopMouseClicked
+        this.stop();
+    }//GEN-LAST:event_jButtonStopMouseClicked
+
+    private void jButtonMenuPrincipalMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonMenuPrincipalMouseClicked
+        this.menu();
+    }//GEN-LAST:event_jButtonMenuPrincipalMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonAvanzar;

@@ -89,6 +89,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
         jButtonNivelGod = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel1.setFont(new java.awt.Font("Dialog", 1, 36)); // NOI18N
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/binairo/images/binairo-logo.png"))); // NOI18N

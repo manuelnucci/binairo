@@ -92,7 +92,7 @@ aplicar_reglas(N, M, FB):- regla5_columna(M, Cambio), Cambio == 1, ciclo(N, M, F
 % aplicar_reglas(N, M, _):- fuerza_bruta(), ciclo(N, M, 1).
 
 %###############################################
-%##############  Reglas 1 y 2  #################
+%#############   Reglas 1 y 2   ################
 %###############################################
 
 reglas1y2(I, J, N, M, Cambio):- siguiente_celda(N, M, I, J, I1, J1),
@@ -192,7 +192,7 @@ miro_derecha_vacia(I, J, N, M, Cambio):- J1 is J+1,
 miro_derecha_vacia(_, _, _, _, _).
 
 %###############################################
-%################   Regla 3  ###################
+%################   Regla 3   ##################
 %###############################################
 
 %depurarF_regla3(I, X, O):- write('Fila '), %depurar_regla3(I, X, O).
@@ -387,7 +387,7 @@ adfuc(I, N, [X], Color, Cambio, _):- 5 =:= N-X, % Ultimo elemento con 5 libres a
                                      Cambio is 1.
 
 %################################################
-%##############  Regla 4 Columna  ###############
+%#############   Regla 4 Columna   ##############
 %################################################
 
 regla4_columna(J, M, _):- J > M. % Caso base
