@@ -31,11 +31,6 @@ resuelve(Nivel, [N, M, CI |L]):- retractall(tablero(I, J, C)), % Eliminamos de l
                                  % depurar2('Tablero final', N, M),
                                  findall((I,J,C), tablero(I,J,C), L), !.
 
-% Procedimiento que genera la lista con todas las celdas de la matriz
-% lista_solucion(I, N, [I,J,C|L]):- I < N, tablero(I,J,C),
-% lista_solucion(L).
-% lista_solucion([]).
-
 % Procedimiento para determinar si el tablero esta completo
 completo(0, 0, _).
 completo(I, 0, M):- tablero(I, 0, _), I1 is I-1, completo(I1, M, M).
@@ -71,8 +66,7 @@ distinto([Cab|Cola1], [Cab|Cola2]):- distinto(Cola1, Cola2).
 % Ciclo por el que se itera cada vez que se ha aplicado una regla y ha
 % desembocado en al menos un cambio en el tablero
 ciclo(N, M, FB):- not(completo(N, M, M)), aplicar_reglas(N, M, FB).
-ciclo(N, _, 0):- verifica_validez(N). % No se aplico fuerza bruta, el ciclo puede terminar
-                 % write('Se verifica la validez del tablero'), nl.
+ciclo(_, _, 0). % No se aplico fuerza bruta, el ciclo puede terminar
 ciclo(N, _, 1):- verifica_validez(N). % Se aplico fuerza bruta, se debe verificar validez del tablero
                  % write('Se verifica la validez del tablero habiendose usado fuerza bruta'), nl.
 
@@ -687,50 +681,8 @@ game(4, 13, 13, 47):- assertz(tablero(0,2,o)),
                       assertz(tablero(13,10,o)),
                       assertz(tablero(13,11,o)).
 
-% Matriz de 14x14 Hard: id = 177,179
-game(5, 13, 13, 40):- assertz(tablero(0,10,x)),
-                      assertz(tablero(0,12,x)),
-                      assertz(tablero(1,2,o)),
-                      assertz(tablero(1,3,x)),
-                      assertz(tablero(1,5,x)),
-                      assertz(tablero(1,8,o)),
-                      assertz(tablero(1,9,o)),
-                      assertz(tablero(1,11,o)),
-                      assertz(tablero(2,2,o)),
-                      assertz(tablero(2,4,o)),
-                      assertz(tablero(3,1,x)),
-                      assertz(tablero(3,6,x)),
-                      assertz(tablero(3,9,x)),
-                      assertz(tablero(4,0,x)),
-                      assertz(tablero(4,4,x)),
-                      assertz(tablero(4,11,o)),
-                      assertz(tablero(5,3,o)),
-                      assertz(tablero(6,6,o)),
-                      assertz(tablero(6,10,x)),
-                      assertz(tablero(6,12,x)),
-                      assertz(tablero(7,6,o)),
-                      assertz(tablero(7,9,o)),
-                      assertz(tablero(8,0,x)),
-                      assertz(tablero(8,7,x)),
-                      assertz(tablero(8,10,o)),
-                      assertz(tablero(8,13,x)),
-                      assertz(tablero(9,4,x)),
-                      assertz(tablero(9,11,x)),
-                      assertz(tablero(10,5,o)),
-                      assertz(tablero(10,11,x)),
-                      assertz(tablero(11,1,x)),
-                      assertz(tablero(11,4,o)),
-                      assertz(tablero(11,5,o)),
-                      assertz(tablero(12,0,o)),
-                      assertz(tablero(12,1,o)),
-                      assertz(tablero(12,3,o)),
-                      assertz(tablero(12,6,x)),
-                      assertz(tablero(12,8,o)),
-                      assertz(tablero(13,7,o)),
-                      assertz(tablero(13,12,x)).
-
 % Matriz de 20x20 Hard: id = 9,651,507
-game(6, 19, 19, 94):- assertz(tablero(0,0,x)),
+game(5, 19, 19, 94):- assertz(tablero(0,0,x)),
                       assertz(tablero(0,3,o)),
                       assertz(tablero(0,9,o)),
                       assertz(tablero(0,11,x)),
@@ -825,7 +777,7 @@ game(6, 19, 19, 94):- assertz(tablero(0,0,x)),
                       assertz(tablero(19,16,x)),
                       assertz(tablero(19,19,x)).
 
-game(7, 29, 29, 219):- assertz(tablero(0,0,x)),
+game(6, 29, 29, 219):- assertz(tablero(0,0,x)),
                        assertz(tablero(0,6,x)),
                        assertz(tablero(0,8,x)),
                        assertz(tablero(0,10,x)),

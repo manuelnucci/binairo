@@ -198,11 +198,11 @@ public class MenuPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonNivel14x14ActionPerformed
 
     private void jButtonNivel20x20ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNivel20x20ActionPerformed
-        this.lanzarNivel("6");
+        this.lanzarNivel("5");
     }//GEN-LAST:event_jButtonNivel20x20ActionPerformed
 
     private void jButtonNivelGodActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNivelGodActionPerformed
-        this.lanzarNivel("7");
+        this.lanzarNivel("6");
     }//GEN-LAST:event_jButtonNivelGodActionPerformed
 
     /**
